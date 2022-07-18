@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gd.main.dao.EmployeeDAO">
+
+<insert id="empLogRegister" parameterType='hashmap'>
+	<!-- INSERT INTO employee_log (emp_writer_no,emp_no, emp_log_content, emp_log_condition)
+		VALUES (#{emp_writer_no},#{emp_no}, #{emp_log_content}, #{emp_log_condition})   -->
+	
+	
+	INSERT INTO employee_log(emp_no,emp_log_content, emp_log_condition,emp_Writer_no)
+	VALUES (#{emp_no}, #{emp_log_content},#{emp_log_condition},#{empName}) 
+	
+	</insert>
+
+<select id="empLogList" resultType="com.gd.main.dto.EmployeeDTO" parameterType="String">
+   <!-- 직원일지 호출 -->
+   SELECT 
+      e.emp_name,
+      emp_writer_no,
+      el.emp_log_date,
+      el.emp_log_condition,
+      el.emp_log_content,
+      el.emp_no
+   FROM 
+      employee_log el 
+   JOIN 
+      employee e 
+   ON 
+      el.emp_no = e.emp_no 
+   WHERE 
+      e.emp_no = #{emp_no}
+</select>
+
+		
+
+<select id="empName" resultType="String">
+		SELECT  (e.emp_name) FROM employee e   WHERE e.emp_no= #{param1} 
+
+</select>
+
+	 <!--  직원정보 등록 -->
+	<insert id="empRegister" parameterType="hashmap" >
+		INSERT INTO employee(
+			emp_id,
+			emp_pw,
+			emp_name,
+			emp_phone,
+			emp_position,
+			emp_startDate,
+		    emp_condition 
+		) VALUES (	
+			#{emp_id},
+			#{emp_pw},
+			#{emp_name},
+			#{emp_phone},
+			#{emp_position},
+			#{emp_startDate},
+			#{emp_condition}
+		) 
+	</insert>
+ 
+	<!-- 직원목록 보기 -->
+	<select id="empList" resultType="com.gd.main.dto.EmployeeDTO" parameterType="hashmap">
+		SELECT emp_no, emp_name, emp_id, emp_phone, emp_condition,
+					 emp_position, emp_startDate,emp_endDate,emp_endDate FROM employee
+		
+	<where>
+				<if test="empSearchCategory != null and empSearchCategory != '' and empSearchContent != null and empSearchContent != ''">
+					<if test="empSearchCategory.equals('emp_name')">
+						AND emp_name LIKE concat('%',#{empSearchContent},'%')
+					</if>
+					<if test="empSearchCategory.equals('emp_phone')">
+						AND emp_phone  LIKE concat('%',#{empSearchContent},'%')
+					</if>
+					<if test="empSearchCategory.equals('emp_position')">
+						AND emp_position LIKE concat('%',#{empSearchContent},'%')
+					</if>
+					<if test="empSearchCategory.equals('emp_condition')">
+						AND emp_condition LIKE concat('%',#{empSearchContent},'%')
+					</if>
+		</if>
+	</where>	
+	ORDER BY emp_no ASC limit #{cnt} OFFSET #{offset} 
+	
+	</select>
+	
+	<select id="allCount" resultType="com.gd.main.dto.EmployeeDTO" parameterType="hashmap">
+		SELECT emp_no FROM employee
+	<!-- 	parameterType="hashmap" -->
+	<where>
+				<if test="empSearchCategory != null and empSearchCategory != '' and empSearchContent != null and empSearchContent != ''">
+					<if test="empSearchCategory.equals('emp_name')">
+						AND emp_name LIKE concat('%',#{empSearchContent},'%')
+					</if>
+					<if test="empSearchCategory.equals('emp_phone')">
+						AND emp_phone LIKE concat('%',#{empSearchContent},'%')
+					</if>
+					<if test="empSearchCategory.equals('emp_position')">
+						AND emp_position LIKE concat('%',#{empSearchContent},'%')
+					</if>
+					<if test="empSearchCategory.equals('emp_condition')">
+						AND emp_condition LIKE concat('%',#{empSearchContent},'%')
+					</if>
+		</if>
+	</where>	
+
+	
+	</select>
+	 
+	
+	
+	
+	<select id="empOverlay" parameterType="String" resultType="String">
+		SELECT emp_id
+		FROM 
+			employee
+		WHERE 
+			emp_id=#{emp_id}		
+		<!-- SELECT emp_name FROM employee WHERE emp_name = #{chkName} -->
+	</select>
+	
+	<select id = "selectEmpMyInfo" parameterType="com.gd.main.dto.EmployeeDTO" resultType="com.gd.main.dto.EmployeeDTO">
+		SELECT emp_no, emp_pw, emp_name, emp_id, emp_phone, emp_condition, emp_position, emp_startDate, emp_endDate 
+		FROM employee
+		Where emp_no = #{emp_no};
+	</select>
+
+	<!-- 직원정보 수정하기 -->
+	<update id="empUpdate" parameterType="hashmap">
+ 		UPDATE employee SET 
+			emp_id = #{emp_id}
+			,emp_name = #{emp_name}
+			,emp_pw= #{emp_pw}
+			,emp_phone = #{emp_phone}
+			,emp_position = #{emp_position}
+			,emp_startDate =#{emp_startDate}
+			,emp_endDate =NULLIF(#{emp_endDate},'')
+			,emp_condition =#{emp_condition}
+		WHERE emp_no= #{emp_no} 
+	</update>
+	
+	
+	<select id="getWriterNo" resultType="String">
+		SELECT emp_no FROM employee
+			WHERE #{param1} = emp_id
+	</select>
+	
+	<select id="getWriterName" resultType="String">
+		SELECT emp_name FROM employee
+			WHERE #{param1} = emp_id
+	</select>
+</mapper>

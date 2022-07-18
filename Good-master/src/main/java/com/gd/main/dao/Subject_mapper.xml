@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gd.main.dao.SubjectDAO">
+	
+	<select id="subList" resultType="com.gd.main.dto.SubDTO">
+		SELECT sub_no, sub_name, sub_condition FROM subject
+	</select>
+	
+	<select id="subOverlay" parameterType="String" resultType="String">
+		SELECT sub_name FROM subject WHERE sub_name = #{subname}
+	</select>
+	
+	<insert id="subRegister" useGeneratedKeys="true" keyColumn="sub_no" keyProperty="sub_no" parameterType="com.gd.main.dto.SubDTO">
+		INSERT INTO subject(sub_name, sub_condition)
+		VALUES(#{sub_name}, #{sub_condition})
+	</insert>
+	
+	<insert id="subHome">
+		INSERT INTO subject_home(sub_time, sub_summary, sub_no)
+		VALUES(#{param1}, #{param2}, #{param3})
+	</insert>
+	
+	
+	<insert id="fileWrite">
+		INSERT INTO curriculm (curri_oriName, curri_newName, sub_no)
+		VALUES(#{param1}, #{param2}, #{param3})
+	</insert>
+	
+	<insert id="subImgWrite">
+		INSERT INTO subjectimg(subimg_oriName, subimg_newName, sub_no)
+		VALUES(#{param1}, #{param2}, #{param3})
+	</insert>
+	
+	<update id="fileUpdate">
+		UPDATE curriculm SET curri_oriName = #{param1}, curri_newName = #{param2}
+		WHERE sub_no = #{param3}
+	</update>
+	
+	<update id="subImgUpdate">
+		UPDATE subjectimg SET subimg_oriName = #{param1}, subimg_newName = #{param2}
+		WHERE sub_no = #{param3}
+	</update>
+	
+	<select id="subDetail" parameterType="String" resultType="com.gd.main.dto.SubDTO">
+	SELECT 
+		s.sub_no,
+		s.sub_name,
+		s.sub_condition,
+		h.sub_time,
+		h.sub_summary
+	FROM
+		subject s 
+		JOIN subject_home h on s.sub_no = h.sub_no
+		WHERE s.sub_no = #{sub_no}
+	</select>
+	
+	<update id="subUpdate" parameterType="hashmap">
+		UPDATE subject s JOIN subject_home h
+		ON s.sub_no = h.sub_no
+		SET  s.sub_name = #{sub_name}
+			, s.sub_condition = #{sub_condition}
+			, h.sub_time = #{sub_time}
+			, h.sub_summary = #{sub_summary}
+			WHERE s.sub_no = #{sub_no}
+	</update>
+
+	
+	
+	<select id="subDetailsc" parameterType="String" resultType="com.gd.main.dto.SubDTO">
+	SELECT 
+		scr_content
+	FROM
+		script WHERE sub_no = #{sub_no};
+	</select>
+	
+	<select id="subCurriDetail" parameterType="String" resultType="com.gd.main.dto.SubDTO">
+	SELECT
+		*
+	FROM
+		curriculm WHERE sub_no =#{sub_no};
+	</select>
+	
+	<select id="subImgDetail" parameterType="String" resultType="com.gd.main.dto.SubDTO">
+	SELECT
+		*
+	FROM
+		subjectimg WHERE sub_no =#{sub_no};
+	</select>
+	
+	
+	
+	<select id="scriptlist" resultType="com.gd.main.dto.SubDTO">
+		SELECT
+	        sc.scr_no,
+	        s.sub_name,
+	        s.sub_condition,
+	        sc.scr_content
+		FROM
+        	subject s
+        JOIN script sc on s.sub_no = sc.sub_no
+        ORDER BY scr_no DESC limit #{param1} OFFSET #{param2};
+	</select>
+	
+	<select id="allCount" parameterType="hashmap" resultType="int">
+		SELECT
+			COUNT(scr_no)
+		FROM
+			subject s
+			INNER JOIN script sc on s.sub_no = sc.sub_no
+        WHERE
+        	1=1
+        	<if test="searchSubNo != null and searchSubNo != ''">
+	        	AND s.sub_no = #{searchSubNo}
+        	</if>
+        	<if test="searchSubCo != null and searchSubCo != ''">
+	        	AND s.sub_condition = #{searchSubCo}
+        	</if>
+       </select>
+	
+	<delete id="scrDel" parameterType="String">
+		DELETE FROM script WHERE scr_no = #{scr_no}
+	</delete>
+
+	<select id="scrSublist" resultType="com.gd.main.dto.SubDTO">
+	SELECT sub_no, sub_name FROM subject
+	</select>
+	
+	<insert id="scrReg" parameterType="hashmap">
+	INSERT INTO script (scr_content, sub_no) 
+	VALUES (#{scr_content}, #{sub_no})
+	</insert>
+	
+	<select id="scrSubSearch" resultType="com.gd.main.dto.SubDTO">
+	SELECT
+	        sc.scr_no,
+	        s.sub_name,
+	        s.sub_condition,
+	        sc.scr_content
+		FROM
+        	subject s
+        JOIN script sc on s.sub_no = sc.sub_no
+        WHERE s.sub_no = #{param1}
+        ORDER BY scr_no DESC limit #{param2} OFFSET #{param3};
+	</select>
+	
+	<select id="scSubCondition" resultType="com.gd.main.dto.SubDTO">
+	SELECT
+	        sc.scr_no,
+	        s.sub_name,
+	        s.sub_condition,
+	        sc.scr_content
+		FROM
+        	subject s
+        JOIN script sc on s.sub_no = sc.sub_no
+        WHERE s.sub_condition = #{param1}
+        ORDER BY scr_no DESC limit #{param2} OFFSET #{param3};
+	</select>
+	
+	<select id="subCondition" parameterType="String" resultType="com.gd.main.dto.SubDTO">
+		SELECT sub_no, sub_name, sub_condition 
+		FROM subject WHERE sub_condition = #{subCo}
+	</select>
+	
+	<select id="sublistSearch" parameterType="String" resultType="com.gd.main.dto.SubDTO">
+		SELECT sub_no, sub_name, sub_condition FROM subject
+		WHERE sub_name LIKE CONCAT('%', #{subSe}, '%')
+	</select>
+	
+	
+</mapper>

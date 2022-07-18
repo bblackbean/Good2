@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gd.main.dao.CourseDAO">
+
+	 <select id="courList2" parameterType="hashmap" resultType="com.gd.main.dto.CourseDTO">
+		SELECT co_no, co_name, subject.sub_no, subject.sub_name, co_startDate, co_endDate, 
+		co_startTime, co_condition FROM course
+		LEFT OUTER JOIN subject ON subject.sub_no = course.sub_no
+		<where>
+			<if test="startSearch != null and endSearch != null and
+			courseNameSearch != null">
+				<if test="startSearch != '' and endSearch != ''">
+					<![CDATA[
+					AND co_startDate >= #{startSearch}
+					AND co_endDate <= #{endSearch}
+					]]>
+					<if test="courseNameSearch.equals('co_name')">
+						AND co_name LIKE concat('%',#{keyword},'%')	
+					</if>
+					<if test="courseNameSearch.equals('co_condition')">
+						AND co_condition LIKE concat('%',#{keyword},'%')
+					</if>
+					<if test="courseNameSearch.equals('sub_name')">
+						AND subject.sub_name LIKE concat('%',#{keyword},'%')
+					</if>
+				</if>
+			</if>
+		</where>
+		ORDER BY co_startDate LIMIT #{cnt} OFFSET #{offset}
+	</select>
+	
+	<select id="allCount" parameterType="hashmap" resultType="int">
+		SELECT COUNT(co_no) FROM course
+		LEFT OUTER JOIN subject ON subject.sub_no = course.sub_no
+		<where>
+			<if test="startSearch != null and endSearch != null and
+				courseNameSearch != null">
+				<if test="startSearch != '' and endSearch != ''">
+					<![CDATA[
+					AND co_startDate >= #{startSearch}
+					AND co_endDate <= #{endSearch}
+					]]>
+					<if test="courseNameSearch.equals('co_name')">
+						AND co_name LIKE concat('%',#{keyword},'%')	
+					</if>
+					<if test="courseNameSearch.equals('co_condition')">
+						AND co_condition LIKE concat('%',#{keyword},'%')
+					</if>
+					<if test="courseNameSearch.equals('sub_name')">
+						AND subject.sub_name LIKE concat('%',#{keyword},'%')
+					</if>
+				</if>
+			</if>
+		</where>
+	</select>
+	
+	<select id="courDetail2" parameterType="String" resultType="com.gd.main.dto.CourseDTO">
+		SELECT co_no, co_name, course.sub_no, sub_name, co_startDate, co_endDate, 
+		co_startTime, co_endTime, co_condition,co_capacity FROM course
+		LEFT JOIN subject ON subject.sub_no = course.sub_no
+		WHERE co_no = #{co_no}
+	</select>
+	
+	<select id="callSubNo" resultType="com.gd.main.dto.CourseDTO">
+		SELECT sub_no FROM subject
+		WHERE sub_no = #{param1}
+	</select>
+	
+	
+	<select id="courOverlay" parameterType="String" resultType="String">
+		SELECT co_name FROM course WHERE co_name = #{chkCo}
+	</select>
+	
+	<select id="subTable" resultType="com.gd.main.dto.CourseDTO">
+		SELECT sub_no FROM subject
+		WHERE sub_no = #{param1}
+	</select>
+	
+	<insert id="courRegister" parameterType="hashmap">
+		INSERT INTO course(co_name,co_startDate,co_endDate,co_startTime,co_endTime,co_capacity,co_condition,sub_no)
+		VALUES(#{co_name},#{co_startDate},#{co_endDate},#{co_startTime},#{co_endTime},#{co_capacity},#{co_condition},#{sub_no})
+	</insert>
+	
+	<update id="courseUpdate" parameterType="hashmap">
+		UPDATE course SET
+			co_name = #{co_name}
+			,sub_no = #{sub_no}
+			,co_startDate = #{co_startDate}
+			,co_endDate = #{co_endDate}
+			,co_startTime = #{co_startTime}
+			,co_endTime = #{co_endTime}
+			,co_condition = #{co_condition}
+			,co_capacity = #{co_capacity}
+		WHERE co_no = #{co_no}
+	</update>
+	
+	<!-- 과목명 불러오기 -->
+ 	<select id="subName" resultType="com.gd.main.dto.CourseDTO">
+		SELECT sub_name,sub_no FROM subject
+	</select>
+	
+	<!-- 과정 정보 불러오기 -->
+	<select id="courseName" resultType="com.gd.main.dto.CourseDTO">
+		SELECT co_no,co_name,sub_no FROM course
+	</select>
+
+	<!-- 단과 가져오기 -->
+	<select id="dangwa" resultType="com.gd.main.dto.CourseDTO">
+		<if test="sub_condition != '숨김'">
+			SELECT sub_name
+				,subject.sub_no
+				,sub_condition
+				,subjectimg.subimg_no
+				,subjectimg.subimg_oriName
+				,subjectimg.subimg_newName
+				,subject_home.sub_time
+				,subject_home.sub_summary
+				,curriculm.curri_no
+				,curriculm.curri_oriName
+				,curriculm.curri_newName
+				<!-- ,script.scr_no
+				,script.scr_content -->
+			FROM subject
+			LEFT OUTER JOIN subjectimg ON subject.sub_no = subjectimg.sub_no
+			LEFT OUTER JOIN subject_home ON subject.sub_no = subject_home.sub_no
+			LEFT OUTER JOIN curriculm ON subject.sub_no = curriculm.sub_no
+			<!-- LEFT OUTER JOIN script ON subject.sub_no = script.sub_no -->
+			WHERE sub_condition = '단과'
+		</if>
+	</select>
+
+	<!-- 종합 가져오기 -->
+	<select id="jonghab" resultType="com.gd.main.dto.CourseDTO">
+		<if test="sub_condition != '숨김'">
+			SELECT sub_name
+				,subject.sub_no
+				,sub_condition
+				,subjectimg.subimg_no
+				,subjectimg.subimg_oriName
+				,subjectimg.subimg_newName
+				,subject_home.sub_time
+				,subject_home.sub_summary
+				,curriculm.curri_no
+				,curriculm.curri_oriName
+				,curriculm.curri_newName
+				<!-- ,script.scr_no
+				,script.scr_content -->
+			FROM subject
+			LEFT OUTER JOIN subjectimg ON subject.sub_no = subjectimg.sub_no
+			LEFT OUTER JOIN subject_home ON subject.sub_no = subject_home.sub_no
+			LEFT OUTER JOIN curriculm ON subject.sub_no = curriculm.sub_no
+			<!-- LEFT OUTER JOIN script ON subject.sub_no = script.sub_no -->
+			WHERE sub_condition = '종합'
+		</if>
+	</select>
+	
+	<!-- 과목상세 홈페이지에 뿌려줄 내용 -->
+	<select id="subDetailHome" resultType="com.gd.main.dto.CourseDTO">
+		SELECT subject.sub_name
+			,subject.sub_no
+			,subject_home.sub_time
+			,subject_home.sub_summary
+			,curriculm.curri_no
+			,curriculm.curri_oriName
+			,curriculm.curri_newName
+		FROM subject
+		LEFT OUTER JOIN subjectimg ON subject.sub_no = subjectimg.sub_no
+		LEFT OUTER JOIN subject_home ON subject.sub_no = subject_home.sub_no
+		LEFT OUTER JOIN curriculm ON subject.sub_no = curriculm.sub_no
+		WHERE subject.sub_no = #{sub_no}
+	</select>
+	<select id="homeSrcList" parameterType="String" resultType="com.gd.main.dto.CourseDTO">
+		SELECT
+			scr_content
+		FROM
+			script WHERE sub_no = #{sub_no};
+	</select>
+</mapper>
