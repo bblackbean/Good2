@@ -20,5 +20,11 @@
 * __개선사항__  
   * 사이트 내 회원 권한 부여 기능 필요  
   * 메인 페이지 수강생 후기 등록 기능 필요
- 
+* __참여자__  
+__송주경__ https://github.com/TeddySong  
+__김세원__ https://github.com/oper2489  
+__김윤선__ https://github.com/kimyoonsun1008  
+__김인욱__ https://github.com/devoook  
+__어수진__ https://github.com/bblackbean  
+__조성훈__ https://github.com/flypigmong 
   
